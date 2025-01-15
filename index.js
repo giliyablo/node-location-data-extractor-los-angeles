@@ -1,5 +1,6 @@
 const axios = require('axios');
 const fs = require('fs');
+const Populartimes = require('@christophern/populartimesjs').Populartimes;
 
 require('dotenv').config();
 
@@ -17,7 +18,7 @@ async function fetchPlaces(query, pagetoken = '') {
 
 // Function to fetch place details (opening hours, popular times)
 async function getPlaceDetails(place_id) {
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place_id}&fields=opening_hours,popular_times&key=${API_KEY}`;
+  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${place_id}&key=${API_KEY}`;
   const response = await axios.get(url);
   return response.data.result;
 }
@@ -37,18 +38,21 @@ async function processArea(areaName) {
     const query = `places in ${areaName}, Los Angeles`; 
     const data = await fetchPlaces(query, nextPageToken);
 
+    const populartimes = new Populartimes();
+
     for (const place of data.results) {
       try {
         const details = await getPlaceDetails(place.place_id);
 
+        let popularTimes = "N/A";
+        populartimes.fullWeek(place.place_id).then((data) => {
+          popularTimes = data;
+          console.log('🚀', data);
+        });
+
         let openingHours = "N/A";
         if (details.opening_hours && details.opening_hours.weekday_text) {
           openingHours = details.opening_hours.weekday_text.join('; ');
-        }
-
-        let popularTimes = "N/A";
-        if (details.popular_times && details.popular_times.weekday_text) {
-          popularTimes = details.popular_times.weekday_text.join('; ');
         }
 
         let secondaryOpeningHours = "N/A";
