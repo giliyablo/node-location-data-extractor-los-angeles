@@ -44,9 +44,9 @@ async function processArea(areaName) {
       try {
         const details = await getPlaceDetails(place.place_id);
 
-        let popularTimes = "N/A";
+        let popularTimesData = "N/A";
         populartimes.fullWeek(place.place_id).then((data) => {
-          popularTimes = data;
+          popularTimesData = data;
           console.log('🚀', data);
         });
 
@@ -81,27 +81,19 @@ async function processArea(areaName) {
             }
           }
         }
-
+      } catch (error) {
+        console.error(`Error fetching details for ${place.name}:`, error);
+      } finally {
         csvData.push([
           place.name,
           place.formatted_address,
           place.geometry.location.lat,
           place.geometry.location.lng,
           openingHours,
-          popularTimes,
+          popularTimesData,
           secondaryOpeningHours,
           openNow,
           currentOpeningHours
-        ]);
-
-      } catch (error) {
-        console.error(`Error fetching details for ${place.name}:`, error);
-        csvData.push([
-          place.name,
-          place.formatted_address,
-          place.geometry.location.lat,
-          place.geometry.location.lng,
-          "N/A", "N/A", "N/A", "N/A", "N/A" 
         ]);
       }
 
