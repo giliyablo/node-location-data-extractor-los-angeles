@@ -12,7 +12,10 @@ async function fetchPlaces(query, pagetoken = '') {
   if (pagetoken) {
     url += `&pagetoken=${pagetoken}`;
   }
-  const response = await axios.get(url);
+  const response = await axios.get(url).catch(error => {
+    console.error(`Error fetching places:`, error);
+    return { data: { results: [], next_page_token: null } }; // Return empty data on error
+  });
   return response.data;
 }
 
@@ -45,10 +48,12 @@ async function processArea(areaName) {
         const details = await getPlaceDetails(place.place_id);
 
         let popularTimesData = "N/A";
-        populartimes.fullWeek(place.place_id).then((data) => {
-          popularTimesData = data;
-          console.log('🚀', data);
-        });
+        try {
+          popularTimesData = await populartimes.fullWeek(place.place_id);
+          console.log('🚀', popularTimesData);
+        } catch (error) {
+          console.error(`Error fetching popular times for ${place.name}:`, error);
+        }
 
         let openingHours = "N/A";
         if (details.opening_hours && details.opening_hours.weekday_text) {
