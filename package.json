@@ -10,6 +10,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@christophern/populartimesjs": "^1.0.8",
     "axios": "^1.7.9",
     "dotenv": "^16.4.5",
     "fs": "^0.0.1-security"
